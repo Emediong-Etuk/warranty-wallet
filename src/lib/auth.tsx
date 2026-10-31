@@ -1,4 +1,4 @@
-import { ID, type Models } from 'appwrite'
+import { AppwriteException, ID, type Models } from 'appwrite'
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import { account, isConfigured } from './appwrite'
 
@@ -10,6 +10,13 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<void>
   register: (name: string, email: string, password: string) => Promise<void>
   logout: () => Promise<void>
+}
+
+function isSessionAlreadyActive(err: unknown): boolean {
+  return (
+    err instanceof AppwriteException &&
+    (err.type === 'user_session_already_exists' || /session is active/i.test(err.message))
+  )
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -28,7 +35,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
-    await account.createEmailPasswordSession({ email, password })
+    try {
+      await account.createEmailPasswordSession({ email, password })
+    } catch (err) {
+      if (!isSessionAlreadyActive(err)) throw err
+      // A session already exists in this browser (e.g. from an earlier login
+      // whose response never reached the page). Use it if it belongs to this
+      // email; otherwise sign it out and log in fresh.
+      const current = await account.get().catch(() => null)
+      if (current && current.email.toLowerCase() === email.trim().toLowerCase()) {
+        setUser(current)
+        return
+      }
+      await account.deleteSession({ sessionId: 'current' }).catch(() => undefined)
+      await account.createEmailPasswordSession({ email, password })
+    }
     setUser(await account.get())
   }, [])
 
