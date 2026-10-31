@@ -1,0 +1,78 @@
+WARRANTY WALLET - DEMO VOICE-OVER
+Timed to: Warranty_wallet_demo.mp4 (1 min 30 s)
+
+Read at a calm, steady pace (about 2-3 words per second).
+Each block starts at the time shown. Short pauses between blocks are fine.
+
+---------------------------------------------------------------------
+[0:00 - 0:13]  Login screen
+---------------------------------------------------------------------
+We buy things with warranties, then lose the receipt or forget when
+the coverage ends. Warranty Wallet fixes that. Let me log in.
+
+---------------------------------------------------------------------
+[0:14 - 0:18]  Dashboard
+---------------------------------------------------------------------
+This is my wallet: what I own, what's still covered, and how much
+money is protected.
+
+---------------------------------------------------------------------
+[0:19 - 0:31]  Item page ("Rice"), scrolling to the buttons
+---------------------------------------------------------------------
+Open any item and the answer is right there: covered, three hundred
+and sixty-five days left. One click copies the claim details for
+support, and another adds a calendar reminder before it expires.
+
+---------------------------------------------------------------------
+[0:32 - 0:35]  Back to wallet, click "Add item"
+---------------------------------------------------------------------
+Now let's add something new.
+
+---------------------------------------------------------------------
+[0:36 - 0:53]  Typing the laptop name, store and price
+---------------------------------------------------------------------
+I just bought an HP laptop from Ventures for two hundred and ninety-
+nine dollars. I pick a category, the purchase date, and the warranty
+length, with one-tap presets for the usual lengths.
+
+---------------------------------------------------------------------
+[0:54 - 1:07]  Choosing the receipt file
+---------------------------------------------------------------------
+Next, the receipt. I can upload an image or a PDF, or snap a photo
+on my phone. It's saved in Appwrite Storage, and only I can see it.
+
+---------------------------------------------------------------------
+[1:08 - 1:17]  Warranty end date shown, click "Save item"
+---------------------------------------------------------------------
+The form already shows when the warranty ends: October thirty-first,
+twenty twenty-seven. Save.
+
+---------------------------------------------------------------------
+[1:18 - 1:30]  New laptop page with the receipt
+---------------------------------------------------------------------
+Done. Covered for a full year, with the proof of purchase right
+beside it. Every item is a row in Appwrite TablesDB. That's
+Warranty Wallet.
+
+
+=====================================================================
+OPTIONAL: EXTRA 30-40 SECONDS (makes the video 2 minutes or longer)
+=====================================================================
+Record one more short clip on a NEW account (sign up with another
+email), click "Load sample items", then click the "Expiring soon"
+tab, type "headphones" in the search box, and open the result.
+Put this clip at the end of the video and read:
+
+[Dashboard fills with 8 items]
+Here's a fuller wallet. Green means covered, yellow means the
+warranty ends within ninety days, and red means it's expired.
+Everything is sorted so the most urgent items come first.
+
+[Click "Expiring soon", then search "headphones" and open it]
+I can filter to what's expiring soon, or search for anything. My
+headphones stopped working? One search, and I can see they're still
+covered, with the receipt ready to show the store.
+
+[Closing]
+Warranty Wallet, built on Appwrite TablesDB. Never lose a receipt.
+Never miss a warranty.
