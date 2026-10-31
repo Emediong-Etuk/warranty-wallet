@@ -96,6 +96,24 @@ npm run dev
 
 Open http://localhost:5173, sign up, and click **Load sample items** to try it with realistic data.
 
+## Troubleshooting
+
+**`npm run setup` says it can't reach the endpoint ("fetch failed")**
+
+1. Open `.env` and check the `VITE_APPWRITE_ENDPOINT` line. Copy the value exactly from the Appwrite Console (project **Settings** → **API Endpoint**). It must start with `https://`, end with `/v1`, and have no quotes or spaces, for example `https://fra.cloud.appwrite.io/v1`.
+2. Test the connection outside Node. In PowerShell (use your own endpoint):
+   ```powershell
+   curl.exe https://fra.cloud.appwrite.io/v1/health/version
+   ```
+   A reply like `{"version":"..."}` means the address is fine.
+3. If curl works but setup still fails with a certificate error (`UNABLE_TO_GET_ISSUER_CERT_LOCALLY` or `SELF_SIGNED_CERT_IN_CHAIN`), antivirus software (Avast, Kaspersky, ESET and others) or a company network is inspecting HTTPS. Turn off its "HTTPS scanning" / "web shield" option, or run setup from a different network (for example a phone hotspot). Also try turning off any VPN.
+
+**Setup says 401 / unauthorized**: the API key is wrong or is missing scopes. Create a new key with the scopes listed in `.env.example`.
+
+**Setup says 404 / project not found**: the project ID is wrong, or the endpoint region (`fra`, `nyc`, `syd`…) doesn't match your project. Copy both values again from the console.
+
+**The app shows a CORS or "unknown origin" error in the browser**: add a Web platform in the Appwrite Console with the hostname you are using (`localhost`, or your deployed domain).
+
 ## Deploy
 
 Any static host works. Build command `npm run build`, output folder `dist`.

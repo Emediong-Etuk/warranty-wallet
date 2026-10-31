@@ -29,7 +29,12 @@ function env(name: string): string {
   return value
 }
 
-const endpoint = env('VITE_APPWRITE_ENDPOINT')
+const endpoint = env('VITE_APPWRITE_ENDPOINT').trim().replace(/^["']|["']$/g, '')
+if (!/^https?:\/\//.test(endpoint)) {
+  console.error(`VITE_APPWRITE_ENDPOINT must start with https:// (yours is "${endpoint}")`)
+  console.error('It should look like https://fra.cloud.appwrite.io/v1')
+  process.exit(1)
+}
 const projectId = env('VITE_APPWRITE_PROJECT_ID')
 const apiKey = env('APPWRITE_API_KEY')
 const databaseId = process.env.VITE_APPWRITE_DATABASE_ID || 'warranty_wallet'
@@ -79,8 +84,52 @@ async function waitForColumns() {
   throw new Error('Timed out waiting for columns to become available')
 }
 
+/** Explain a network error in plain words, including the underlying cause. */
+function describeNetworkError(err: unknown): string {
+  const cause = (err as { cause?: { code?: string; message?: string } })?.cause
+  const code = cause?.code ?? ''
+  const detail = cause?.message ?? (err instanceof Error ? err.message : String(err))
+  const hints: Record<string, string> = {
+    ENOTFOUND: 'The endpoint address could not be found. Check VITE_APPWRITE_ENDPOINT for typos, and check your internet connection.',
+    EAI_AGAIN: 'Could not look up the endpoint address. Check your internet connection.',
+    ECONNREFUSED: 'The server refused the connection. Check VITE_APPWRITE_ENDPOINT.',
+    ETIMEDOUT: 'The connection timed out. A firewall, VPN or proxy may be blocking it.',
+    ECONNRESET: 'The connection was cut off. A firewall, VPN or proxy may be blocking it.',
+    UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
+      'Antivirus or a company network is intercepting HTTPS. See "Troubleshooting" in the README.',
+    SELF_SIGNED_CERT_IN_CHAIN:
+      'Antivirus or a company network is intercepting HTTPS. See "Troubleshooting" in the README.',
+  }
+  return `${detail}${code ? ` (${code})` : ''}\n  ${hints[code] ?? 'Check VITE_APPWRITE_ENDPOINT and your internet connection.'}`
+}
+
+/** Make sure the endpoint is reachable before doing anything else. */
+async function checkConnection() {
+  let url: URL
+  try {
+    url = new URL(endpoint.replace(/\/+$/, '') + '/health/version')
+  } catch {
+    console.error(`VITE_APPWRITE_ENDPOINT is not a valid URL: "${endpoint}"`)
+    console.error('It should look like https://fra.cloud.appwrite.io/v1 (no quotes or spaces).')
+    process.exit(1)
+  }
+  if (!endpoint.endsWith('/v1')) {
+    console.warn(`Warning: VITE_APPWRITE_ENDPOINT usually ends with /v1 (yours is "${endpoint}")`)
+  }
+  try {
+    await fetch(url)
+    console.log(`Connected to ${url.host}\n`)
+  } catch (err) {
+    console.error(`\nCould not reach ${url.origin}`)
+    console.error(`  ${describeNetworkError(err)}\n`)
+    process.exit(1)
+  }
+}
+
 async function main() {
-  console.log(`\nSetting up Warranty Wallet in project "${projectId}"\n`)
+  console.log(`\nSetting up Warranty Wallet in project "${projectId}"`)
+  console.log(`Endpoint: ${endpoint}\n`)
+  await checkConnection()
 
   console.log('Database')
   await ensure(`database "${databaseId}"`, () =>
@@ -170,6 +219,12 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error('\nSetup failed:', err instanceof Error ? err.message : err)
+  if (err instanceof AppwriteException) {
+    console.error(`\nSetup failed: ${err.message} (HTTP ${err.code}, ${err.type})`)
+    if (err.code === 401) console.error('  Check APPWRITE_API_KEY and that the key has the scopes listed in .env.example.')
+    if (err.code === 404) console.error('  Check VITE_APPWRITE_PROJECT_ID and that the endpoint region matches your project.')
+  } else {
+    console.error(`\nSetup failed: ${describeNetworkError(err)}`)
+  }
   process.exit(1)
 })
