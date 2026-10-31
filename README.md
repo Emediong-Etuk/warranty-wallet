@@ -128,7 +128,7 @@ VITE_APPWRITE_TABLE_ID=items
 VITE_APPWRITE_BUCKET_ID=receipts
 ```
 
-Then add the deployed domain as a Web platform in your Appwrite project. A `public/_redirects` file is included so page refreshes work on single-page app hosts.
+Then add the deployed domain as a Web platform in your Appwrite project. `vercel.json` (Vercel) and `public/_redirects` (Netlify) are included so page refreshes work.
 
 ## Project structure
 
