@@ -48,7 +48,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
       await account.deleteSession({ sessionId: 'current' }).catch(() => undefined)
-      await account.createEmailPasswordSession({ email, password })
+      try {
+        await account.createEmailPasswordSession({ email, password })
+      } catch (retryErr) {
+        if (!isSessionAlreadyActive(retryErr)) throw retryErr
+        // Last resort: forget the stale session the SDK keeps in localStorage
+        // (used when the browser blocks third-party cookies) and try again.
+        window.localStorage.removeItem('cookieFallback')
+        await account.createEmailPasswordSession({ email, password })
+      }
     }
     setUser(await account.get())
   }, [])
